@@ -1,11 +1,23 @@
+from app.embeddings.embedding_service import EmbeddingService
+from app.vectorstore.chroma_service import ChromaService
+
+
 class RAGService:
 
-    def obtener_contexto(self, pregunta: str) -> str:
+    def __init__(self):
 
-        return """
-Este asistente responde únicamente utilizando la información del curso Moodle.
+        self.embedding = EmbeddingService()
 
-Actualmente esta respuesta proviene del servicio RAG de prueba.
-"""
+        self.chroma = ChromaService()
 
-#Por ahora será un "mock". Más adelante leerá ChromaDB.
+    def obtener_contexto(self, pregunta):
+
+        vector = self.embedding.generar(
+            pregunta
+        )
+
+        resultado = self.chroma.buscar(vector)
+
+        documentos = resultado["documents"][0]
+
+        return "\n\n".join(documentos)

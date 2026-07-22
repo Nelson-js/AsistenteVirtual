@@ -5,24 +5,84 @@
 #No es necesario crear un parser distinto para cada formato; un único módulo puede encargarse de ello.
 
 
-from pathlib import Path
-
 from pypdf import PdfReader
 
 from docx import Document
 
 
-#Text Splitter
-#Cada documento debe dividirse en fragmentos antes de generar embeddings.
 
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+class DocumentParser:
 
 
-splitter = RecursiveCharacterTextSplitter(
 
-    chunk_size=800,
+    def leer_pdf(
+        self,
+        archivo
+    ):
 
-    chunk_overlap=150
-)
+
+        reader = PdfReader(
+            archivo
+        )
+
+
+        texto=""
+
+
+        for pagina in reader.pages:
+
+            texto += pagina.extract_text()
+
+
+
+        return texto
+
+
+
+    def leer_docx(
+        self,
+        archivo
+    ):
+
+
+        doc = Document(
+            archivo
+        )
+
+
+        texto=""
+
+
+        for parrafo in doc.paragraphs:
+
+            texto += parrafo.text + "\n"
+
+
+
+        return texto
+
+
+
+    def leer(
+        self,
+        archivo
+    ):
+
+
+        if archivo.endswith(".pdf"):
+
+            return self.leer_pdf(
+                archivo
+            )
+
+
+        if archivo.endswith(".docx"):
+
+            return self.leer_docx(
+                archivo
+            )
+
+
+        return ""
 
 #Cada PDF producirá varios fragmentos, lo que mejora la recuperación semántica.
